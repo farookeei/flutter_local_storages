@@ -15,4 +15,7 @@ abstract class StorageRepository {
 
   /// Clear all data in the storage
   Future<void> clearAll();
+
+  /// Returns the total storage size in bytes on disk/memory
+  Future<int> getStorageSizeInBytes();
 }

@@ -32,4 +32,10 @@ class MockStorageRepository implements StorageRepository {
   Future<void> clearAll() async {
     _inMemoryDb.clear();
   }
+
+  @override
+  Future<int> getStorageSizeInBytes() async {
+    // Roughly estimate RAM size by stringifying the list
+    return _inMemoryDb.fold(0, (sum, item) => sum + item.title.length + item.content.length + 32);
+  }
 }

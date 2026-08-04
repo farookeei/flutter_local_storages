@@ -15,6 +15,7 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> {
   bool _isWorking = false;
   String _statusMessage = 'Ready';
   int _totalItems = 0;
+  int _storageSizeInBytes = 0;
 
   @override
   void initState() {
@@ -25,18 +26,27 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> {
   Future<void> _initDatabase() async {
     setState(() => _isWorking = true);
     await widget.repository.init();
-    await _refreshCount();
+    await _refreshMetrics();
     setState(() {
       _isWorking = false;
       _statusMessage = 'Database Initialized';
     });
   }
 
-  Future<void> _refreshCount() async {
+  Future<void> _refreshMetrics() async {
     final items = await widget.repository.fetchAll();
+    final bytes = await widget.repository.getStorageSizeInBytes();
     setState(() {
       _totalItems = items.length;
+      _storageSizeInBytes = bytes;
     });
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes <= 0) return '0 B';
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(2)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(2)} MB';
   }
 
   Future<void> _runWriteBenchmark() async {
@@ -54,7 +64,7 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> {
     await widget.repository.insertBulk(items);
     stopwatch.stop();
 
-    await _refreshCount();
+    await _refreshMetrics();
 
     setState(() {
       _isWorking = false;
@@ -72,8 +82,9 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> {
     final items = await widget.repository.fetchAll();
     stopwatch.stop();
 
+    await _refreshMetrics();
+
     setState(() {
-      _totalItems = items.length;
       _isWorking = false;
       _statusMessage = 'Read ${items.length} items in ${stopwatch.elapsedMilliseconds} ms';
     });
@@ -82,7 +93,7 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> {
   Future<void> _clearDatabase() async {
     setState(() => _isWorking = true);
     await widget.repository.clearAll();
-    await _refreshCount();
+    await _refreshMetrics();
     setState(() {
       _isWorking = false;
       _statusMessage = 'Database Cleared';
@@ -138,6 +149,17 @@ class _BenchmarkScreenState extends State<BenchmarkScreen> {
                 Text(
                   '$_totalItems',
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Database Size:'),
+                Text(
+                  _formatBytes(_storageSizeInBytes),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.blueAccent),
                 ),
               ],
             ),
