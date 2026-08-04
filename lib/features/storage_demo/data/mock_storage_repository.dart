@@ -36,6 +36,6 @@ class MockStorageRepository implements StorageRepository {
   @override
   Future<int> getStorageSizeInBytes() async {
     // Roughly estimate RAM size by stringifying the list
-    return _inMemoryDb.fold(0, (sum, item) => sum + item.title.length + item.content.length + 32);
+    return _inMemoryDb.fold<int>(0, (int sum, item) => sum + item.title.length + item.content.length + 32);
   }
 }
