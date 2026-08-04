@@ -16,13 +16,18 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
 subprojects {
-    plugins.withId("com.android.library") {
-        val android = extensions.getByType(com.android.build.gradle.LibraryExtension::class.java)
-        if (android.namespace == null) {
-            android.namespace = "dev.isar.${project.name.replace("-", "_")}"
+    afterEvaluate {
+        if (plugins.hasPlugin("com.android.library")) {
+            val android = extensions.getByType(com.android.build.gradle.LibraryExtension::class.java)
+            if (android.namespace == null) {
+                android.namespace = "dev.isar.${project.name.replace("-", "_")}"
+            }
+            // afterEvaluate ensures this overrides isar_flutter_libs's own compileSdk = 30
+            android.compileSdkVersion(34)
         }
     }
 }
+
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
