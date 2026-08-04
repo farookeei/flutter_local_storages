@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter_local_storages/features/storage_demo/domain/entities/todo_item.dart';
 import 'package:flutter_local_storages/features/storage_demo/domain/repositories/storage_repository.dart';
-import 'package:flutter_local_storages/features/storage_demo/data/mock_storage_repository.dart';
+import 'package:flutter_local_storages/features/storage_demo/data/isar_storage_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:isar/isar.dart';
 
 /// ---------------------------------------------------------------------------
 /// Contract Test Suite for [StorageRepository]
@@ -16,9 +18,11 @@ import 'package:flutter_test/flutter_test.dart';
 /// ---------------------------------------------------------------------------
 
 /// Factory function — swap this out on each feature branch.
-StorageRepository createRepository() => MockStorageRepository();
+StorageRepository createRepository() => IsarStorageRepository();
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('TodoItem Entity', () {
     test('generateMock creates item with correct index', () {
       final item = TodoItem.generateMock(42);
@@ -43,11 +47,38 @@ void main() {
 
   group('StorageRepository Contract Tests', () {
     late StorageRepository repository;
+    late Directory tempDir;
+
+    setUpAll(() async {
+      HttpOverrides.global = null;
+      try {
+        await Isar.initializeIsarCore(download: false);
+      } catch (_) {
+        await Isar.initializeIsarCore(download: true);
+      }
+    });
 
     setUp(() async {
-      // A fresh repository instance before every test.
-      repository = createRepository();
+      tempDir = await Directory.systemTemp.createTemp('isar_test_');
+      if (Isar.instanceNames.isNotEmpty) {
+        for (var name in Isar.instanceNames) {
+          await Isar.getInstance(name)?.close(deleteFromDisk: true);
+        }
+      }
+      repository = IsarStorageRepository(directory: tempDir.path);
+      // Initialize Isar repo
       await repository.init();
+    });
+
+    tearDown(() async {
+      if (Isar.instanceNames.isNotEmpty) {
+        for (var name in Isar.instanceNames) {
+          await Isar.getInstance(name)?.close(deleteFromDisk: true);
+        }
+      }
+      if (tempDir.existsSync()) {
+        await tempDir.delete(recursive: true);
+      }
     });
 
     // ── 1. Engine Name ───────────────────────────────────────────────────────

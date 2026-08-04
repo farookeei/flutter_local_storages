@@ -1,9 +1,14 @@
+import 'package:isar/isar.dart';
+
+part 'todo_item.g.dart';
+
+@collection
 class TodoItem {
-  final int id;
-  final String title;
-  final String content;
-  final bool isCompleted;
-  final DateTime createdAt;
+  Id id;
+  String title;
+  String content;
+  bool isCompleted;
+  DateTime createdAt;
 
   TodoItem({
     required this.id,
@@ -13,7 +18,22 @@ class TodoItem {
     required this.createdAt,
   });
 
-  // A factory for quick mock data generation
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'content': content,
+        'isCompleted': isCompleted,
+        'createdAt': createdAt.toIso8601String(),
+      };
+
+  factory TodoItem.fromJson(Map<String, dynamic> json) => TodoItem(
+        id: json['id'] as int,
+        title: json['title'] as String,
+        content: json['content'] as String,
+        isCompleted: json['isCompleted'] as bool,
+        createdAt: DateTime.parse(json['createdAt'] as String),
+      );
+
   factory TodoItem.generateMock(int index) {
     return TodoItem(
       id: index,

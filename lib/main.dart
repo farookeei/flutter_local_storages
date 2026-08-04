@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'features/storage_demo/data/mock_storage_repository.dart';
+import 'features/storage_demo/data/isar_storage_repository.dart';
+import 'features/storage_demo/domain/repositories/storage_repository.dart';
 import 'features/storage_demo/presentation/screens/benchmark_screen.dart';
 
 void main() {
-  // We initialize our storage repository here.
-  // In a real app, you might use a dependency injection framework like GetIt or Provider.
-  final storageRepository = MockStorageRepository();
+  WidgetsFlutterBinding.ensureInitialized();
+  final storageRepository = IsarStorageRepository();
   
   runApp(MyApp(storageRepository: storageRepository));
 }
 
 class MyApp extends StatelessWidget {
-  final MockStorageRepository storageRepository;
+  final StorageRepository storageRepository;
 
   const MyApp({super.key, required this.storageRepository});
 
