@@ -63,9 +63,21 @@ class HiveStorageRepository implements StorageRepository {
 
   @override
   Future<int> insertBulk(List<TodoItem> items) async {
-    final Map<dynamic, TodoItem> entries = {
-      for (var item in items) item.id: item
-    };
+    final currentLength = _box.length;
+    final Map<dynamic, TodoItem> entries = {};
+
+    for (var i = 0; i < items.length; i++) {
+      final uniqueId = currentLength + i;
+      final item = items[i];
+      entries[uniqueId] = TodoItem(
+        id: uniqueId,
+        title: 'Benchmark Task $uniqueId',
+        content: item.content,
+        isCompleted: item.isCompleted,
+        createdAt: item.createdAt,
+      );
+    }
+
     await _box.putAll(entries);
     return items.length;
   }
