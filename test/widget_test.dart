@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter_local_storages/features/storage_demo/domain/entities/todo_item.dart';
 import 'package:flutter_local_storages/features/storage_demo/domain/repositories/storage_repository.dart';
-import 'package:flutter_local_storages/features/storage_demo/data/mock_storage_repository.dart';
+import 'package:flutter_local_storages/features/storage_demo/data/hive_storage_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:hive_ce/hive.dart';
 
 /// ---------------------------------------------------------------------------
 /// Contract Test Suite for [StorageRepository]
@@ -16,9 +18,11 @@ import 'package:flutter_test/flutter_test.dart';
 /// ---------------------------------------------------------------------------
 
 /// Factory function — swap this out on each feature branch.
-StorageRepository createRepository() => MockStorageRepository();
+StorageRepository createRepository() => HiveStorageRepository();
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('TodoItem Entity', () {
     test('generateMock creates item with correct index', () {
       final item = TodoItem.generateMock(42);
@@ -43,11 +47,24 @@ void main() {
 
   group('StorageRepository Contract Tests', () {
     late StorageRepository repository;
+    late Directory tempDir;
 
     setUp(() async {
-      // A fresh repository instance before every test.
+      tempDir = await Directory.systemTemp.createTemp('hive_test_');
+      Hive.init(tempDir.path);
+      if (!Hive.isAdapterRegistered(1)) {
+        Hive.registerAdapter(TodoItemAdapter());
+      }
       repository = createRepository();
-      await repository.init();
+      // Open box manually in test
+      await (repository as HiveStorageRepository).init();
+    });
+
+    tearDown(() async {
+      await Hive.deleteFromDisk();
+      if (tempDir.existsSync()) {
+        await tempDir.delete(recursive: true);
+      }
     });
 
     // ── 1. Engine Name ───────────────────────────────────────────────────────
