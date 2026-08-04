@@ -42,4 +42,15 @@ class SharedPreferencesStorageRepository implements StorageRepository {
   Future<void> clearAll() async {
     await _prefs.remove(_storageKey);
   }
+
+  @override
+  Future<int> getStorageSizeInBytes() async {
+    final jsonList = _prefs.getStringList(_storageKey) ?? [];
+    if (jsonList.isEmpty) return 0;
+    int totalBytes = 0;
+    for (final str in jsonList) {
+      totalBytes += utf8.encode(str).length;
+    }
+    return totalBytes;
+  }
 }
