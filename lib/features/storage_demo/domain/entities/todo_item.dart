@@ -13,6 +13,22 @@ class TodoItem {
     required this.createdAt,
   });
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'content': content,
+        'isCompleted': isCompleted,
+        'createdAt': createdAt.toIso8601String(),
+      };
+
+  factory TodoItem.fromJson(Map<String, dynamic> json) => TodoItem(
+        id: json['id'] as int,
+        title: json['title'] as String,
+        content: json['content'] as String,
+        isCompleted: json['isCompleted'] as bool,
+        createdAt: DateTime.parse(json['createdAt'] as String),
+      );
+
   // A factory for quick mock data generation
   factory TodoItem.generateMock(int index) {
     return TodoItem(

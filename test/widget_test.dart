@@ -1,7 +1,8 @@
 import 'package:flutter_local_storages/features/storage_demo/domain/entities/todo_item.dart';
 import 'package:flutter_local_storages/features/storage_demo/domain/repositories/storage_repository.dart';
-import 'package:flutter_local_storages/features/storage_demo/data/mock_storage_repository.dart';
+import 'package:flutter_local_storages/features/storage_demo/data/shared_preferences_storage_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// ---------------------------------------------------------------------------
 /// Contract Test Suite for [StorageRepository]
@@ -16,9 +17,11 @@ import 'package:flutter_test/flutter_test.dart';
 /// ---------------------------------------------------------------------------
 
 /// Factory function — swap this out on each feature branch.
-StorageRepository createRepository() => MockStorageRepository();
+StorageRepository createRepository() => SharedPreferencesStorageRepository();
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('TodoItem Entity', () {
     test('generateMock creates item with correct index', () {
       final item = TodoItem.generateMock(42);
@@ -45,6 +48,7 @@ void main() {
     late StorageRepository repository;
 
     setUp(() async {
+      SharedPreferences.setMockInitialValues({});
       // A fresh repository instance before every test.
       repository = createRepository();
       await repository.init();
