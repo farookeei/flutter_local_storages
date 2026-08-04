@@ -1,6 +1,8 @@
+import 'dart:io';
+import 'package:drift/drift.dart';
 import 'package:flutter_local_storages/features/storage_demo/domain/entities/todo_item.dart';
 import 'package:flutter_local_storages/features/storage_demo/domain/repositories/storage_repository.dart';
-import 'package:flutter_local_storages/features/storage_demo/data/mock_storage_repository.dart';
+import 'package:flutter_local_storages/features/storage_demo/data/drift_storage_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// ---------------------------------------------------------------------------
@@ -16,9 +18,17 @@ import 'package:flutter_test/flutter_test.dart';
 /// ---------------------------------------------------------------------------
 
 /// Factory function — swap this out on each feature branch.
-StorageRepository createRepository() => MockStorageRepository();
+StorageRepository createRepository() {
+  final tempFile = File('${Directory.systemTemp.path}/drift_test_${DateTime.now().microsecondsSinceEpoch}.sqlite');
+  return DriftStorageRepository(
+    path: tempFile.path,
+    passphraseOverride: 'test_secret_passphrase_123',
+  );
+}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   group('TodoItem Entity', () {
     test('generateMock creates item with correct index', () {
       final item = TodoItem.generateMock(42);
