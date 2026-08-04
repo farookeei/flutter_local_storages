@@ -35,6 +35,10 @@ class IsarStorageRepository implements StorageRepository {
 
   @override
   Future<int> insertBulk(List<TodoItem> items) async {
+    // Reset to autoIncrement so Isar assigns unique IDs on every insert
+    for (final item in items) {
+      item.id = Isar.autoIncrement;
+    }
     await _isar.writeTxn(() async {
       await _isar.todoItems.putAll(items);
     });
