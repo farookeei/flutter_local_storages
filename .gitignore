@@ -46,5 +46,9 @@ app.*.map.json
 
 medium_article_draft.md
 
+# ObjectBox native test binaries and downloads
+download/
+*.dylib
+
 # FVM Version Cache
 .fvm/

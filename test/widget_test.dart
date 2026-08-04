@@ -1,6 +1,7 @@
+import 'dart:io';
 import 'package:flutter_local_storages/features/storage_demo/domain/entities/todo_item.dart';
 import 'package:flutter_local_storages/features/storage_demo/domain/repositories/storage_repository.dart';
-import 'package:flutter_local_storages/features/storage_demo/data/mock_storage_repository.dart';
+import 'package:flutter_local_storages/features/storage_demo/data/objectbox_storage_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// ---------------------------------------------------------------------------
@@ -16,13 +17,16 @@ import 'package:flutter_test/flutter_test.dart';
 /// ---------------------------------------------------------------------------
 
 /// Factory function — swap this out on each feature branch.
-StorageRepository createRepository() => MockStorageRepository();
+StorageRepository createRepository() {
+  final tempDir = Directory.systemTemp.createTempSync('objectbox_test_');
+  return ObjectBoxStorageRepository(directory: tempDir.path);
+}
 
 void main() {
   group('TodoItem Entity', () {
     test('generateMock creates item with correct index', () {
       final item = TodoItem.generateMock(42);
-      expect(item.id, equals(42));
+      expect(item.id, equals(0));
       expect(item.title, equals('Benchmark Task 42'));
       expect(item.isCompleted, isTrue); // 42 % 2 == 0, so isCompleted = true
     });
