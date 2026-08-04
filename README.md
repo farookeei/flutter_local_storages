@@ -6,7 +6,7 @@ This repository accompanies the Medium publication: **[Production-Grade Local St
 
 ---
 
-## 🚀 Repository Branch Architecture
+##  Repository Branch Architecture
 
 Each storage engine implementation lives in its own isolated feature branch implementing a unified polymorphic `StorageRepository` interface.
 
@@ -22,7 +22,7 @@ github.com/farookeei/flutter_local_storages
 
 ---
 
-## 📐 Clean Architecture per Branch
+##  Clean Architecture per Branch
 
 ```text
 lib/
@@ -39,7 +39,7 @@ lib/
 
 ---
 
-## 📊 Algorithmic Complexity (Big-O Time & Space Matrix)
+##  Algorithmic Complexity (Big-O Time & Space Matrix)
 
 | Storage Engine | Write Time Complexity | Read Time Complexity | Disk Space Overhead | RAM Footprint | Primary Bottleneck |
 | :--- | :--- | :--- | :--- | :--- | :--- |
